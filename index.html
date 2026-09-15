@@ -13,6 +13,10 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Firebase SDK (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -712,10 +716,63 @@
             ]
         };
 
-        let appState = JSON.parse(localStorage.getItem('clara_atelier_cms')) || JSON.parse(JSON.stringify(DEFAULT_STATE));
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrXs-M1w1TJBU1iN_mbZUq4heSg9bJtdU",
+            authDomain: "myportofolio-ed2de.firebaseapp.com",
+            projectId: "myportofolio-ed2de",
+            storageBucket: "myportofolio-ed2de.firebasestorage.app",
+            messagingSenderId: "330447271627",
+            appId: "1:330447271627:web:526df7c7015023d6868d4e"
+        };
 
-        function saveState() {
-            localStorage.setItem('clara_atelier_cms', JSON.stringify(appState));
+        // Initialize Firebase & Firestore
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const portfolioDocRef = db.collection('portfolio').doc('content');
+
+        // State initialization with fallback
+        const localSaved = localStorage.getItem('clara_atelier_cms');
+        let appState = localSaved ? JSON.parse(localSaved) : JSON.parse(JSON.stringify(DEFAULT_STATE));
+        appState.isAdminLoggedIn = sessionStorage.getItem('clara_admin_session') === 'true';
+
+        async function saveState() {
+            const dataToSave = {
+                profile: appState.profile,
+                portfolioCards: appState.portfolioCards,
+                sections: appState.sections,
+                socialLinks: appState.socialLinks,
+                guestbook: appState.guestbook
+            };
+
+            try {
+                await portfolioDocRef.set(dataToSave, { merge: true });
+            } catch (err) {
+                console.error("Gagal menyimpan ke Firestore:", err);
+                showToast("Gagal menyimpan ke cloud: " + (err.message || err), "error");
+            }
+        }
+
+        function initFirestoreSync() {
+            portfolioDocRef.onSnapshot((docSnap) => {
+                if (docSnap.exists) {
+                    const data = docSnap.data();
+                    if (data.profile) appState.profile = data.profile;
+                    if (data.portfolioCards) appState.portfolioCards = data.portfolioCards;
+                    if (data.sections) appState.sections = data.sections;
+                    if (data.socialLinks) appState.socialLinks = data.socialLinks;
+                    if (data.guestbook) appState.guestbook = data.guestbook;
+                    renderFrontend();
+                    if (appState.isAdminLoggedIn) {
+                        initCmsFields();
+                    }
+                } else {
+                    // Simpan data default pertama kali jika belum ada di Firestore
+                    saveState();
+                }
+            }, (error) => {
+                console.error("Koneksi Firestore error:", error);
+            });
         }
 
         // Precision Scroll Function with Dynamic Sticky Header Offset
@@ -1192,7 +1249,7 @@
 
             if (user === 'admin' && pass === 'admin123') {
                 appState.isAdminLoggedIn = true;
-                saveState();
+                sessionStorage.setItem('clara_admin_session', 'true');
                 closeLoginModal();
                 showToast('Login Admin Berhasil! Mengalihkan ke CMS...');
                 switchToBackend();
@@ -1205,7 +1262,7 @@
         function handleAdminLogout() {
             customConfirm('Logout', 'Apakah Anda yakin ingin keluar dari Admin CMS?', () => {
                 appState.isAdminLoggedIn = false;
-                saveState();
+                sessionStorage.removeItem('clara_admin_session');
                 switchToFrontend();
                 renderFrontend();
                 showToast('Berhasil logout dari Admin CMS.');
@@ -1479,6 +1536,7 @@
         window.onload = function() {
             renderFrontend();
             setupScrollSpy();
+            initFirestoreSync();
         };
     </script>
 </body>
