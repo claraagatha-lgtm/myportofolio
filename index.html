@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clara Agatha Wijaya | Natural Atelier & Studio CMS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'luxury-black': '#FAF6F3',  // Soft Warm Cream / Natural Linen
+                        'luxury-card': '#FFFFFF',   // Pure Soft White Card
+                        'luxury-border': '#E8DFD8', // Soft Rose-Sand Border
+                        'gold-accent': '#A46860',   // Earthy Terracotta Rose Accent
+                        'gold-light': '#C4928A',    // Soft Muted Rose Quartz
+                        'gold-muted': '#A0817B',    // Natural Mauve Taupe
+                        'gold-soft': '#6E3F39',     // Deep Organic Rosewood
+                        'warm-ivory': '#2D2321',    // Soft Warm Espresso Charcoal Text
+                        'text-muted': '#786B68',    // Natural Warm Taupe Grey
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'gold-glow': '0 4px 20px -2px rgba(164, 104, 96, 0.18)',
+                        'gold-glow-lg': '0 10px 30px -5px rgba(164, 104, 96, 0.25)',
+                        'sleek': '0 10px 30px -10px rgba(0, 0, 0, 0.05)',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #FAF6F3;
+            color: #2D2321;
+            overflow-x: hidden;
+        }
+        h1, h2, h3, .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        .section-block {
+            scroll-margin-top: 5.5rem;
+        }
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .nav-link.active-nav {
+            color: #A46860;
+            font-weight: 700;
+        }
+        .nav-link.active-nav::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #A46860;
+            border-radius: 99px;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FAF6F3;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E8DFD8;
+            border-radius: 999px;
+            border: 1px solid #A46860;
+        }
+        @keyframes float-subtle {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float {
+            animation: float-subtle 5s ease-in-out infinite;
+        }
+        .vinyl-spin {
+            animation: spin 8s linear infinite;
+        }
+        .vinyl-stop {
+            animation-play-state: paused;
+        }
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+        .eq-bar {
+            transition: height 0.15s ease-in-out;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #2D2321 0%, #A46860 60%, #A0817B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-gold-accent selection:text-luxury-black">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Confirmation Modal Dialog -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 bg-warm-ivory/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-luxury-card border border-luxury-border rounded-2xl p-6 max-w-sm w-full shadow-gold-glow-lg space-y-4">
+            <h4 id="confirm-title" class="font-serif text-lg text-warm-ivory font-semibold">Konfirmasi</h4>
+            <p id="confirm-message" class="text-xs text-text-muted leading-relaxed">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="closeConfirmModal(false)" class="px-4 py-2 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory hover:border-gold-accent transition">Batal</button>
+                <button id="confirm-action-btn" onclick="closeConfirmModal(true)" class="px-4 py-2 rounded-xl bg-gold-accent text-luxury-black font-semibold text-xs hover:opacity-90 transition shadow-sm">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Quick Return Bar for Admin Mode -->
+    <div id="admin-preview-bar" class="hidden fixed bottom-6 right-6 z-50 bg-luxury-card/95 backdrop-blur-md border border-gold-accent px-4 py-3 rounded-2xl shadow-gold-glow-lg flex items-center gap-3 transition-all duration-300">
+        <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold-accent opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-gold-accent"></span>
+        </span>
+        <span class="text-xs font-semibold text-warm-ivory hidden sm:inline">Mode Admin Aktif</span>
+        <button onclick="switchToBackend()" class="px-3.5 py-1.5 bg-gold-accent text-luxury-black text-xs font-bold rounded-xl hover:opacity-90 transition flex items-center gap-2 shadow-sm">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Kembali ke Admin Panel</span>
+        </button>
+    </div>
+
+    <!-- MAIN FRONTEND VIEW -->
+    <div id="frontend-view">
+        <header id="main-header" class="sticky top-0 z-40 bg-luxury-black/90 backdrop-blur-lg border-b border-luxury-border/80 px-6 py-4 transition-all duration-300">
+            <div class="max-w-6xl mx-auto flex items-center justify-between">
+                <a href="#about" onclick="scrollToSection('about', event)" class="flex items-center gap-3 group">
+                    <span class="w-8 h-8 rounded-full border border-gold-accent/50 flex items-center justify-center text-gold-accent text-xs font-serif font-bold group-hover:bg-gold-accent group-hover:text-luxury-black transition duration-300">C</span>
+                    <span class="text-xl font-serif font-semibold tracking-wide text-warm-ivory">Clara Agatha<span class="text-gold-accent">.</span></span>
+                </a>
+
+                <!-- Desktop Nav Links (Populated dynamically) -->
+                <nav id="desktop-nav-container" class="hidden md:flex items-center gap-6 text-sm font-medium tracking-wide text-text-muted">
+                    <!-- Dynamic links will be injected here -->
+                </nav>
+
+                <!-- Mobile Hamburger Button -->
+                <button id="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle Navigation" class="md:hidden w-10 h-10 flex items-center justify-center rounded-xl bg-luxury-card border border-luxury-border text-warm-ivory">
+                    <i class="fa-solid fa-bars text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Mobile Nav Menu Dropdown -->
+            <div id="mobile-menu" class="hidden md:hidden mt-4 pt-4 border-t border-luxury-border/60 flex flex-col gap-3 text-sm transition-all duration-300">
+                <div id="mobile-nav-container" class="flex flex-col gap-2"></div>
+                <button onclick="handleAdminNavClick(); toggleMobileMenu();" class="p-2.5 text-left rounded-xl bg-luxury-card border border-luxury-border text-warm-ivory flex items-center gap-2">
+                    <i class="fa-solid fa-lock text-gold-accent"></i>
+                    <span id="mobile-admin-btn-text">Admin Portal</span>
+                </button>
+                <a href="#contact" onclick="scrollToSection('contact', event); toggleMobileMenu();" class="p-2.5 bg-gold-accent text-luxury-black text-center font-bold rounded-xl uppercase tracking-wider text-xs">Hubungi Saya</a>
+            </div>
+        </header>
+
+        <!-- Main Content Container -->
+        <main class="flex-grow max-w-6xl w-full mx-auto px-6 py-12 space-y-24">
+
+            <!-- HERO / ABOUT SECTION -->
+            <section id="about" class="section-block scroll-mt-24 md:scroll-mt-28 grid grid-cols-1 md:grid-cols-12 gap-12 items-center pt-6">
+                <div class="md:col-span-5 flex flex-col items-center">
+                    <div class="relative group">
+                        <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-gold-accent via-gold-muted to-gold-light opacity-30 blur-xl group-hover:opacity-50 transition duration-700"></div>
+                        <div class="w-56 h-72 md:w-64 md:h-80 rounded-2xl bg-luxury-card border border-luxury-border shadow-sleek overflow-hidden relative flex items-center justify-center p-1">
+                            <img id="avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80" alt="Clara Agatha Wijaya" class="w-full h-full object-cover rounded-xl filter contrast-105 hover:scale-105 transition duration-700" onerror="this.src='https://placehold.co/600x800/FAF6F3/A46860?text=Clara+Agatha'">
+                        </div>
+                        <div id="hero-badge" class="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-luxury-card/90 backdrop-blur-md text-gold-accent text-[11px] font-semibold tracking-widest uppercase px-4 py-1.5 rounded-full border border-gold-accent/40 shadow-gold-glow animate-float whitespace-nowrap">
+                            ✦ Senior Visual & UI Architect
+                        </div>
+                    </div>
+
+                    <div class="mt-8 flex items-center gap-3 bg-luxury-card px-4 py-2 rounded-full border border-luxury-border text-xs text-text-muted shadow-sm">
+                        <span class="w-2.5 h-2.5 rounded-full bg-gold-accent animate-pulse"></span>
+                        <span>Open for Executive Projects & Commissions</span>
+                    </div>
+                </div>
+
+                <div class="md:col-span-7 space-y-6 text-center md:text-left">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-gold-accent/30 bg-gold-accent/10 text-gold-accent text-xs font-semibold tracking-widest uppercase">
+                        <span>EST. 2026 — NATURAL ATELIER</span>
+                    </div>
+                    <h1 id="hero-headline" class="text-4xl md:text-6xl font-serif font-normal text-warm-ivory leading-tight">
+                        Crafting <span class="italic font-serif gold-gradient-text">Organic</span> Digital Experiences.
+                    </h1>
+                    <div id="hero-bio" class="text-sm md:text-base text-text-muted font-light leading-relaxed max-w-xl space-y-2">
+                        <p>Saya <strong class="text-warm-ivory font-semibold">Clara Agatha Wijaya</strong>, seorang Product UI Designer & Creative Director. Berfokus pada estetika minimalis, elemen organik, dan antarmuka berkelas tinggi.</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 pt-4">
+                        <a href="#portfolio" class="px-8 py-3.5 rounded-full bg-gold-accent text-luxury-black font-semibold text-xs tracking-widest uppercase hover:opacity-90 transition duration-300 shadow-gold-glow flex items-center gap-3">
+                            <span>Explore Portfolio</span>
+                            <i class="fa-solid fa-arrow-down text-xs"></i>
+                        </a>
+                        <a href="#contact" class="px-7 py-3.5 rounded-full bg-luxury-card border border-luxury-border hover:border-gold-accent/60 text-warm-ivory font-medium text-xs tracking-widest uppercase transition duration-300 shadow-sm">
+                            Get In Touch
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AUDIO PLAYER SECTION -->
+            <section id="sec-music" class="section-block scroll-mt-24 md:scroll-mt-28 bg-luxury-card border border-luxury-border rounded-2xl p-6 shadow-sleek relative overflow-hidden space-y-4">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="flex items-center gap-5">
+                        <div class="relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0">
+                            <div id="vinyl-disc" class="w-full h-full rounded-full bg-luxury-black border-2 border-gold-accent/40 flex items-center justify-center vinyl-spin vinyl-stop shadow-md">
+                                <div class="w-7 h-7 rounded-full bg-gold-accent/20 border border-gold-accent flex items-center justify-center">
+                                    <div class="w-2.5 h-2.5 rounded-full bg-gold-accent"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <span id="track-type-badge" class="text-[10px] uppercase tracking-widest font-semibold bg-gold-accent/10 text-gold-accent px-2.5 py-0.5 rounded-full border border-gold-accent/30">AMBIENT SYNTH</span>
+                                <div id="equalizer" class="flex items-end gap-1 h-4">
+                                    <span id="eq1" class="w-1 bg-gold-accent h-1 rounded-full eq-bar"></span>
+                                    <span id="eq2" class="w-1 bg-gold-accent h-1 rounded-full eq-bar"></span>
+                                    <span id="eq3" class="w-1 bg-gold-accent h-1 rounded-full eq-bar"></span>
+                                    <span id="eq4" class="w-1 bg-gold-accent h-1 rounded-full eq-bar"></span>
+                                </div>
+                            </div>
+                            <h3 id="song-title" class="text-lg font-serif text-warm-ivory mt-1">Midnight Atelier Sunset 🌇</h3>
+                            <p id="song-artist" class="text-xs text-text-muted">Interactive Audio Engine</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col items-center gap-3 w-full md:w-auto">
+                        <div class="flex items-center gap-4">
+                            <button onclick="prevTrack()" class="w-10 h-10 rounded-full bg-luxury-black border border-luxury-border text-warm-ivory hover:border-gold-accent hover:text-gold-accent transition duration-300 flex items-center justify-center text-xs" title="Track Sebelumnya">
+                                <i class="fa-solid fa-backward-step"></i>
+                            </button>
+                            <button id="play-pause-btn" onclick="togglePlayMusic()" class="w-12 h-12 rounded-full bg-gold-accent text-luxury-black shadow-gold-glow flex items-center justify-center text-base hover:opacity-90 transition duration-300" title="Play / Pause Audio">
+                                <i id="play-icon" class="fa-solid fa-play ml-0.5"></i>
+                            </button>
+                            <button onclick="nextTrack()" class="w-10 h-10 rounded-full bg-luxury-black border border-luxury-border text-warm-ivory hover:border-gold-accent hover:text-gold-accent transition duration-300 flex items-center justify-center text-xs" title="Track Selanjutnya">
+                                <i class="fa-solid fa-forward-step"></i>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center gap-3 text-xs font-medium text-text-muted w-48">
+                            <i class="fa-solid fa-volume-low text-gold-accent text-xs"></i>
+                            <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.7" oninput="changeVolume(this.value)" class="w-full accent-gold-accent cursor-pointer bg-luxury-border h-1 rounded-lg">
+                            <i class="fa-solid fa-volume-high text-gold-accent text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-luxury-border/60 flex items-center justify-between text-xs">
+                    <span class="text-text-muted flex items-center gap-2">
+                        <i class="fa-solid fa-compact-disc text-gold-accent"></i> Studio Playlist Soundscapes (<span id="playlist-count">3</span>)
+                    </span>
+                    <span class="text-[11px] text-text-muted/70 italic">Managed live via Admin CMS</span>
+                </div>
+            </section>
+
+            <!-- PORTFOLIO SHOWCASE SECTION -->
+            <section id="portfolio" class="section-block scroll-mt-24 md:scroll-mt-28 space-y-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-widest text-gold-accent">SELECTED WORKS</span>
+                        <h2 class="text-3xl md:text-4xl font-serif text-warm-ivory mt-1">Portfolio Showcase 🎨</h2>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-2" id="portfolio-filter-buttons">
+                        <button onclick="filterGallery('all')" class="filter-btn active px-5 py-2 rounded-full border border-gold-accent text-xs font-medium bg-gold-accent text-luxury-black transition">Semua</button>
+                        <button onclick="filterGallery('ui')" class="filter-btn px-5 py-2 rounded-full border border-luxury-border text-xs font-medium text-text-muted hover:text-warm-ivory hover:border-gold-accent/50 transition">UI/UX Design</button>
+                        <button onclick="filterGallery('illustration')" class="filter-btn px-5 py-2 rounded-full border border-luxury-border text-xs font-medium text-text-muted hover:text-warm-ivory hover:border-gold-accent/50 transition">Visual Art</button>
+                        <button onclick="filterGallery('brand')" class="filter-btn px-5 py-2 rounded-full border border-luxury-border text-xs font-medium text-text-muted hover:text-warm-ivory hover:border-gold-accent/50 transition">Brand Identity</button>
+                    </div>
+                </div>
+
+                <div id="gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                    <!-- Dynamic cards loaded via JavaScript -->
+                </div>
+            </section>
+
+            <!-- DYNAMIC SECTIONS CONTAINER (Injected from CMS) -->
+            <div id="dynamic-sections-container" class="space-y-24"></div>
+
+            <!-- ZEN EXPERIENCE SECTION -->
+            <section id="pet" class="section-block scroll-mt-24 md:scroll-mt-28 bg-luxury-card border border-luxury-border rounded-2xl p-8 shadow-sleek text-center space-y-6 relative overflow-hidden">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-gold-accent/30 bg-gold-accent/10 text-gold-accent text-xs font-semibold tracking-widest uppercase">
+                    ✦ ATELIER ZEN EXPERIENCE
+                </div>
+                <h2 class="text-2xl md:text-3xl font-serif text-warm-ivory">Interactive Zen Companion 🕊️</h2>
+                <p class="text-xs md:text-sm text-text-muted max-w-md mx-auto leading-relaxed">
+                    Setiap interaksi menciptakan harmoni alami. Berikan energi positif untuk menjaga keselarasan & inspirasi kreatif.
+                </p>
+
+                <div class="bg-luxury-black border border-luxury-border rounded-2xl p-6 max-w-md mx-auto shadow-gold-glow relative">
+                    <div id="mochi-avatar" class="text-6xl my-4 transition-transform duration-500 hover:scale-110 cursor-pointer filter drop-shadow select-none" onclick="petMochi()">
+                        🕊️
+                    </div>
+                    <div id="mochi-status" class="font-serif italic text-sm text-gold-accent mb-4">
+                        "Atmosphere is calm and inspired."
+                    </div>
+                    <div class="w-full bg-luxury-card h-2.5 rounded-full border border-luxury-border overflow-hidden mb-6">
+                        <div id="mochi-bar" class="bg-gold-accent h-full w-[75%] transition-all duration-500"></div>
+                    </div>
+                    <div class="flex justify-center gap-3">
+                        <button onclick="feedMochi('tea')" class="px-4 py-2 bg-luxury-card border border-luxury-border rounded-xl text-xs font-medium text-warm-ivory hover:border-gold-accent transition">🍵 Green Tea</button>
+                        <button onclick="feedMochi('incense')" class="px-4 py-2 bg-luxury-card border border-luxury-border rounded-xl text-xs font-medium text-warm-ivory hover:border-gold-accent transition">🕯️ Incense</button>
+                        <button onclick="petMochi()" class="px-4 py-2 bg-gold-accent text-luxury-black font-semibold rounded-xl text-xs shadow-gold-glow hover:opacity-90 transition">✨ Harmonize</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- GUESTBOOK SECTION -->
+            <section id="guestbook" class="section-block scroll-mt-24 md:scroll-mt-28 space-y-8">
+                <div class="text-center space-y-2">
+                    <span class="text-xs font-semibold uppercase tracking-widest text-gold-accent">GUESTBOOK & INQUIRIES</span>
+                    <h2 class="text-3xl md:text-4xl font-serif text-warm-ivory">Tinggalkan Pesan Elegant 📖</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    <form id="guestbook-form" onsubmit="addGuestbookMessage(event)" class="md:col-span-5 bg-luxury-card border border-luxury-border rounded-2xl p-6 shadow-sleek space-y-5">
+                        <div>
+                            <label class="block text-xs font-medium text-warm-ivory mb-2">Nama & Instansi / Title:</label>
+                            <input type="text" id="gb-name" required placeholder="Contoh: Alexander Wright — Art Director" class="w-full px-4 py-3 rounded-xl bg-luxury-black border border-luxury-border focus:outline-none focus:border-gold-accent text-xs text-warm-ivory">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-warm-ivory mb-2">Pesan & Catatan:</label>
+                            <textarea id="gb-message" required rows="4" placeholder="Tuliskan catatan, kolaborasi, atau kesan Anda mengenai portofolio ini..." class="w-full px-4 py-3 rounded-xl bg-luxury-black border border-luxury-border focus:outline-none focus:border-gold-accent text-xs text-warm-ivory"></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-3 bg-gold-accent text-luxury-black font-semibold rounded-xl text-xs uppercase tracking-wider hover:opacity-90 transition shadow-gold-glow">
+                            Kirim Pesan 💌
+                        </button>
+                    </form>
+
+                    <div id="guestbook-list" class="md:col-span-7 space-y-4 max-h-[380px] overflow-y-auto pr-2">
+                        <!-- Guestbook messages loaded dynamically -->
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <footer id="contact" class="scroll-mt-24 md:scroll-mt-28 bg-luxury-card border-t border-luxury-border pt-16 pb-12 mt-20">
+            <div class="max-w-6xl mx-auto px-6 space-y-12">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-8 pb-12 border-b border-luxury-border">
+                    <div class="text-center md:text-left space-y-3">
+                        <a href="#" class="text-2xl font-serif font-semibold tracking-wide text-warm-ivory inline-block">
+                            Clara Agatha Wijaya<span class="text-gold-accent">.</span>
+                        </a>
+                        <p class="text-xs text-text-muted max-w-sm leading-relaxed">
+                            Terima kasih atas kunjungan Anda. Untuk diskusi proyek, konsultasi desain, atau peluang kerja sama, hubungi saya melalui media sosial.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-col items-center gap-4">
+                        <div id="social-icons-container" class="flex flex-wrap items-center justify-center gap-3">
+                            <!-- Javascript populates icons -->
+                        </div>
+                    </div>
+
+                    <div class="text-center md:text-right">
+                        <a href="#" class="w-12 h-12 bg-luxury-black border border-luxury-border rounded-full inline-flex items-center justify-center text-warm-ivory hover:border-gold-accent hover:text-gold-accent transition duration-300 shadow-sm" title="Kembali Ke Atas">
+                            <i class="fa-solid fa-arrow-up text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-center justify-between text-xs text-text-muted gap-4">
+                    <p>© 2026 Clara Agatha Wijaya. All Rights Reserved.</p>
+                    <p class="font-serif italic text-gold-accent">"Simplicity and nature are the ultimate sophistication."</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- LOGIN MODAL -->
+    <div id="login-modal" class="fixed inset-0 z-50 bg-warm-ivory/50 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="bg-luxury-card border border-luxury-border rounded-2xl p-8 max-w-md w-full shadow-gold-glow-lg space-y-6 relative">
+            <button onclick="closeLoginModal()" class="absolute top-5 right-5 w-8 h-8 rounded-full border border-luxury-border flex items-center justify-center text-text-muted hover:text-warm-ivory hover:border-gold-accent text-xs">✕</button>
+            
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 rounded-full border border-gold-accent/40 bg-gold-accent/10 flex items-center justify-center mx-auto text-gold-accent text-lg">🔒</div>
+                <h3 class="text-2xl font-serif text-warm-ivory">Admin Authentication</h3>
+                <p class="text-xs text-text-muted">Gunakan username: <strong class="text-warm-ivory">admin</strong> & password: <strong class="text-warm-ivory">admin123</strong></p>
+            </div>
+            
+            <form id="admin-login-form" onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-warm-ivory mb-2">Username Admin:</label>
+                    <input type="text" id="login-username" required placeholder="Masukkan username" autocomplete="username" class="w-full px-4 py-3 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-warm-ivory mb-2">Password:</label>
+                    <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password" class="w-full px-4 py-3 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                </div>
+                <button type="submit" class="w-full py-3 bg-gold-accent text-luxury-black font-semibold rounded-xl text-xs uppercase tracking-wider hover:opacity-90 transition shadow-gold-glow">
+                    Login Ke Studio Backend 🔑
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- BACKEND CMS VIEW -->
+    <div id="backend-view" class="hidden min-h-screen bg-luxury-black text-warm-ivory flex flex-col justify-between">
+        <header class="bg-luxury-card border-b border-luxury-border px-6 py-4 sticky top-0 z-40 shadow-sm">
+            <div class="max-w-6xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="px-3 py-1 bg-gold-accent/10 border border-gold-accent/40 text-gold-accent text-xs font-semibold rounded-full uppercase tracking-widest">EXECUTIVE CMS</span>
+                    <h2 class="font-serif text-lg text-warm-ivory">Studio Control Center</h2>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="switchToFrontend()" class="px-4 py-2 bg-luxury-black border border-luxury-border rounded-xl text-xs font-medium text-warm-ivory hover:border-gold-accent transition flex items-center gap-2">
+                        <i class="fa-solid fa-eye text-gold-accent text-xs"></i>
+                        <span>Live Preview</span>
+                    </button>
+                    <button onclick="handleAdminLogout()" class="px-4 py-2 bg-gold-accent text-luxury-black font-semibold rounded-xl text-xs hover:opacity-90 transition flex items-center gap-2">
+                        <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow max-w-6xl w-full mx-auto px-6 py-10 space-y-10">
+            <!-- Navigation Tabs in Admin Panel -->
+            <div class="flex flex-wrap gap-3 border-b border-luxury-border pb-4">
+                <button onclick="switchCmstab('profile')" id="tab-btn-profile" class="cms-tab-btn active px-5 py-2.5 bg-gold-accent text-luxury-black font-semibold rounded-xl text-xs flex items-center gap-2 transition">
+                    <i class="fa-solid fa-user-gear"></i> Setelan Profile & Avatar
+                </button>
+                <button onclick="switchCmstab('sections')" id="tab-btn-sections" class="cms-tab-btn px-5 py-2.5 bg-luxury-card text-text-muted border border-luxury-border rounded-xl text-xs font-medium hover:text-warm-ivory flex items-center gap-2 transition">
+                    <i class="fa-solid fa-cubes"></i> Kelola & Tambah Section
+                </button>
+                <button onclick="switchCmstab('cards')" id="tab-btn-cards" class="cms-tab-btn px-5 py-2.5 bg-luxury-card text-text-muted border border-luxury-border rounded-xl text-xs font-medium hover:text-warm-ivory flex items-center gap-2 transition">
+                    <i class="fa-solid fa-layer-group"></i> Manage Portfolio Cards
+                </button>
+                <button onclick="switchCmstab('social')" id="tab-btn-social" class="cms-tab-btn px-5 py-2.5 bg-luxury-card text-text-muted border border-luxury-border rounded-xl text-xs font-medium hover:text-warm-ivory flex items-center gap-2 transition">
+                    <i class="fa-solid fa-share-nodes"></i> Manage Social Links
+                </button>
+                <button onclick="switchCmstab('guestbook')" id="tab-btn-guestbook" class="cms-tab-btn px-5 py-2.5 bg-luxury-card text-text-muted border border-luxury-border rounded-xl text-xs font-medium hover:text-warm-ivory flex items-center gap-2 transition">
+                    <i class="fa-solid fa-book-open"></i> Moderasi Guestbook
+                </button>
+            </div>
+
+            <!-- SECTION PROFILE (ADMIN ONLY) -->
+            <section id="cms-section-profile" class="cms-panel space-y-6">
+                <div class="bg-luxury-card border border-luxury-border rounded-2xl p-8 shadow-sleek space-y-6 max-w-2xl">
+                    <div>
+                        <h3 class="text-xl font-serif text-warm-ivory">Pengaturan Profile & Hero Section 📸</h3>
+                        <p class="text-xs text-text-muted mt-1">Kelola foto profil, badge status, headline utama, serta deskripsi bio.</p>
+                    </div>
+
+                    <form onsubmit="handleSaveProfileCMS(event)" class="space-y-6">
+                        <!-- Preview Foto Profil & Input File/URL -->
+                        <div class="space-y-3">
+                            <label class="block text-xs font-medium text-warm-ivory">Foto Profil Admin:</label>
+                            <div class="flex items-center gap-5 p-4 bg-luxury-black border border-luxury-border rounded-xl">
+                                <img id="admin-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80" alt="Preview Avatar" class="w-20 h-20 rounded-xl object-cover border border-gold-accent">
+                                <div class="flex-grow space-y-2">
+                                    <input type="text" id="avatar-input-url" placeholder="https://..." class="w-full px-3 py-2 rounded-lg bg-luxury-card border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                                    <input type="file" id="avatar-input-file" accept="image/*" class="w-full text-xs text-text-muted" onchange="convertAvatarFile(event)">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Role / Status Badge Input -->
+                        <div>
+                            <label class="block text-xs font-medium text-warm-ivory mb-2">Role / Status Badge Text:</label>
+                            <input type="text" id="badge-input" placeholder="✦ Senior Visual & UI Architect" class="w-full px-4 py-3 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                        </div>
+
+                        <!-- Headline Input -->
+                        <div>
+                            <label class="block text-xs font-medium text-warm-ivory mb-2">Headline Utama (Hero Title):</label>
+                            <input type="text" id="headline-input" placeholder="Crafting Organic Digital Experiences." class="w-full px-4 py-3 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                        </div>
+
+                        <!-- Bio Rich Input -->
+                        <div>
+                            <label class="block text-xs font-medium text-warm-ivory mb-2">Bio Singkat / Deskripsi Profile:</label>
+                            <textarea id="bio-input" rows="4" placeholder="Tuliskan biografi singkat Anda..." class="w-full px-4 py-3 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent"></textarea>
+                        </div>
+
+                        <button type="submit" class="px-6 py-3 bg-gold-accent text-luxury-black font-semibold rounded-xl text-xs uppercase tracking-wider hover:opacity-90 transition shadow-gold-glow flex items-center gap-2">
+                            <i class="fa-solid fa-floppy-disk"></i> Simpan Perubahan Profile
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- SECTION DYNAMIC SECTIONS (ADMIN ONLY) -->
+            <section id="cms-section-sections" class="cms-panel hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    <!-- Form Tambah Section Baru -->
+                    <div class="md:col-span-5 bg-luxury-card border border-luxury-border rounded-2xl p-6 shadow-sleek space-y-5">
+                        <h3 class="text-xl font-serif text-warm-ivory">Tambah Section Baru ➕</h3>
+                        <p class="text-xs text-text-muted">Buat section konten custom yang secara otomatis akan ditambahkan ke halaman utama dan navigasi menu.</p>
+
+                        <form onsubmit="handleCreateSectionCMS(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-warm-ivory mb-2">ID Section (Unik, tanpa spasi):</label>
+                                <input type="text" id="sec-id" required placeholder="contoh: layanan / filosofi" class="w-full px-4 py-2.5 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-warm-ivory mb-2">Judul Navigasi Menu:</label>
+                                <input type="text" id="sec-nav-title" required placeholder="contoh: Layanan Atelier" class="w-full px-4 py-2.5 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-warm-ivory mb-2">Judul Utama Section:</label>
+                                <input type="text" id="sec-main-title" required placeholder="contoh: Layanan & Konsultasi Desain" class="w-full px-4 py-2.5 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-warm-ivory mb-2">Sub-Judul / Badge Label:</label>
+                                <input type="text" id="sec-badge" placeholder="contoh: ATELIER SERVICES" class="w-full px-4 py-2.5 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-warm-ivory mb-2">Konten Paragraf / Deskripsi:</label>
+                                <textarea id="sec-content" required rows="4" placeholder="Tuliskan isi paragraf detail section di sini..." class="w-full px-4 py-2.5 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent"></textarea>
+                            </div>
+                            <button type="submit" class="w-full py-3 bg-gold-accent text-luxury-black font-semibold rounded-xl text-xs uppercase tracking-wider hover:opacity-90 transition shadow-gold-glow">
+                                Publikasikan Section
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Daftar Existing Custom Sections -->
+                    <div class="md:col-span-7 bg-luxury-card border border-luxury-border rounded-2xl p-6 shadow-sleek space-y-4">
+                        <h3 class="text-xl font-serif text-warm-ivory">Daftar Custom Section Aktif</h3>
+                        <div id="cms-sections-list" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                            <!-- Dynamic section list rendered via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION PORTFOLIO CARDS (ADMIN ONLY) -->
+            <section id="cms-section-cards" class="cms-panel hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                    <!-- Form Modal Tambah / Edit Card -->
+                    <div class="md:col-span-5 bg-luxury-card border border-luxury-border rounded-2xl p-6 shadow-sleek space-y-5">
+                        <h3 id="card-form-heading" class="text-xl font-serif text-warm-ivory">Tambah Karya Portfolio 🖼️</h3>
+                        
+                        <form onsubmit="handleSaveCardCMS(event)" class="space-y-4">
+                            <input type="hidden" id="card-edit-id" value="">
+                            <div>
+                                <label class="block text-xs font-medium text-warm-ivory mb-2">Judul Proyek:</label>
+                                <input type="text" id="card-title" required placeholder="Contoh: Luxury Botanical Mobile App" class="w-full px-4 py-2.5 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-warm-ivory mb-2">Kategori:</label>
+                                <select id="card-category" class="w-full px-4 py-2.5 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                                    <option value="ui">UI/UX Design</option>
+                                    <option value="illustration">Visual Art</option>
+                                    <option value="brand">Brand Identity</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-warm-ivory mb-2">URL Gambar Proyek:</label>
+                                <input type="text" id="card-image" required placeholder="https://images.unsplash.com/..." class="w-full px-4 py-2.5 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-warm-ivory mb-2">Deskripsi Proyek:</label>
+                                <textarea id="card-desc" required rows="3" placeholder="Penjelasan singkat mengenai konsep dan hasil desain..." class="w-full px-4 py-2.5 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent"></textarea>
+                            </div>
+                            <div class="flex gap-2">
+                                <button type="submit" class="flex-grow py-3 bg-gold-accent text-luxury-black font-semibold rounded-xl text-xs uppercase tracking-wider hover:opacity-90 transition shadow-gold-glow">
+                                    Simpan Card
+                                </button>
+                                <button type="button" onclick="resetCardForm()" class="px-4 py-3 bg-luxury-black border border-luxury-border text-warm-ivory rounded-xl text-xs hover:border-gold-accent transition">
+                                    Reset
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Daftar Karya Portfolio -->
+                    <div class="md:col-span-7 bg-luxury-card border border-luxury-border rounded-2xl p-6 shadow-sleek space-y-4">
+                        <h3 class="text-xl font-serif text-warm-ivory">Daftar Karya Aktif</h3>
+                        <div id="cms-cards-list" class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                            <!-- Cards list rendered via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION SOCIAL LINKS (ADMIN ONLY) -->
+            <section id="cms-section-social" class="cms-panel hidden space-y-6">
+                <div class="bg-luxury-card border border-luxury-border rounded-2xl p-8 shadow-sleek max-w-2xl space-y-6">
+                    <div>
+                        <h3 class="text-xl font-serif text-warm-ivory">Kelola Media Sosial & Tautan 🌐</h3>
+                        <p class="text-xs text-text-muted mt-1">Tambah atau perbarui link footer media sosial Anda.</p>
+                    </div>
+
+                    <form onsubmit="handleAddSocialCMS(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                        <div class="sm:col-span-4">
+                            <input type="text" id="social-name" required placeholder="Platform (misal: Behance)" class="w-full px-4 py-2.5 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                        </div>
+                        <div class="sm:col-span-3">
+                            <input type="text" id="social-icon" required placeholder="Icon FA (fa-behance)" class="w-full px-4 py-2.5 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                        </div>
+                        <div class="sm:col-span-5 flex gap-2">
+                            <input type="url" id="social-url" required placeholder="https://..." class="w-full px-4 py-2.5 rounded-xl bg-luxury-black border border-luxury-border text-xs text-warm-ivory focus:outline-none focus:border-gold-accent">
+                            <button type="submit" class="px-4 py-2.5 bg-gold-accent text-luxury-black font-semibold rounded-xl text-xs hover:opacity-90 transition shadow-sm whitespace-nowrap">
+                                Tambah
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="cms-social-list" class="space-y-3 pt-4 border-t border-luxury-border">
+                        <!-- Social links loaded via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION GUESTBOOK MODERATION (ADMIN ONLY) -->
+            <section id="cms-section-guestbook" class="cms-panel hidden space-y-6">
+                <div class="bg-luxury-card border border-luxury-border rounded-2xl p-8 shadow-sleek space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-serif text-warm-ivory">Moderasi Guestbook 📖</h3>
+                            <p class="text-xs text-text-muted mt-1">Kelola dan hapus pesan masukan dari pengunjung.</p>
+                        </div>
+                        <button onclick="clearAllGuestbookCMS()" class="px-4 py-2 bg-luxury-black border border-luxury-border text-xs text-gold-accent rounded-xl hover:border-gold-accent transition">
+                            Hapus Semua Pesan
+                        </button>
+                    </div>
+
+                    <div id="cms-guestbook-list" class="space-y-3">
+                        <!-- Guestbook entries loaded via JS -->
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="bg-luxury-card border-t border-luxury-border py-6 text-center text-xs text-text-muted">
+            <p>Atelier Studio CMS Control Center — Logged in as <span class="text-gold-accent font-semibold">Administrator</span></p>
+        </footer>
+    </div>
+
+    <script>
+        const DEFAULT_STATE = {
+            isAdminLoggedIn: false,
+            profile: {
+                avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
+                badgeText: '✦ Senior Visual & UI Architect',
+                headline: 'Crafting <span class="italic font-serif gold-gradient-text">Organic</span> Digital Experiences.',
+                bio: 'Saya <strong class="text-warm-ivory font-semibold">Clara Agatha Wijaya</strong>, seorang Product UI Designer & Creative Director. Berfokus pada estetika minimalis, elemen organik, dan antarmuka berkelas tinggi.'
+            },
+            portfolioCards: [
+                {
+                    id: 'p1',
+                    title: 'Aura Luxury Skincare Experience',
+                    category: 'ui',
+                    categoryLabel: 'UI/UX Design',
+                    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80',
+                    desc: 'Antarmuka e-commerce mewah berkonsep earth-tone dengan micro-animations untuk brand skincare premium.'
+                },
+                {
+                    id: 'p2',
+                    title: 'Botanical Atelier Brand System',
+                    category: 'brand',
+                    categoryLabel: 'Brand Identity',
+                    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+                    desc: 'Sistem identitas visual komprehensif mencakup tipografi custom, palet warna alam, dan panduan brand.'
+                },
+                {
+                    id: 'p3',
+                    title: 'Solitude Series Minimalist Art',
+                    category: 'illustration',
+                    categoryLabel: 'Visual Art',
+                    image: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=800&q=80',
+                    desc: 'Eksplorasi seni digital abstrak bertema ketenangan ruang dan keseimbangan komposisi bentuk.'
+                }
+            ],
+            sections: [
+                {
+                    id: 'services',
+                    navTitle: 'Layanan',
+                    mainTitle: 'Layanan & Keahlian Studio 🌿',
+                    badge: 'DESIGN SERVICES',
+                    content: 'Kami menyediakan pendekatan desain holistik yang memadukan estetika visual elegan dengan arsitektur antarmuka yang fungsional. Layanan mencakup Design System, Product UI/UX, Direction Brand, dan Art Direction.'
+                }
+            ],
+            socialLinks: [
+                { name: 'Instagram', icon: 'fa-instagram', url: 'https://instagram.com' },
+                { name: 'Dribbble', icon: 'fa-dribbble', url: 'https://dribbble.com' },
+                { name: 'Behance', icon: 'fa-behance', url: 'https://behance.net' },
+                { name: 'LinkedIn', icon: 'fa-linkedin-in', url: 'https://linkedin.com' }
+            ],
+            guestbook: [
+                {
+                    id: 'gb1',
+                    name: 'Julian Vance — Design Director',
+                    message: 'Karya portofolio yang sangat menawan dengan pemilihan palet warna hangat yang unik!',
+                    date: '7 Sep 2026, 14:20'
+                }
+            ]
+        };
+
+        let appState = JSON.parse(localStorage.getItem('clara_atelier_cms')) || JSON.parse(JSON.stringify(DEFAULT_STATE));
+
+        function saveState() {
+            localStorage.setItem('clara_atelier_cms', JSON.stringify(appState));
+        }
+
+        // Precision Scroll Function with Dynamic Sticky Header Offset
+        function scrollToSection(targetId, event) {
+            if (event) {
+                event.preventDefault();
+            }
+            const targetElement = document.getElementById(targetId);
+            if (!targetElement) return;
+
+            const header = document.getElementById('main-header');
+            const headerHeight = header ? header.offsetHeight : 72;
+            const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+            const offsetPosition = Math.max(0, elementPosition - headerHeight - 16);
+
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+
+            if (history.pushState) {
+                history.pushState(null, null, `#${targetId}`);
+            }
+
+            // Instantly highlight active state on clicked link
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach((link) => {
+                if (link.getAttribute('data-target') === targetId) {
+                    link.classList.add('active-nav');
+                } else {
+                    link.classList.remove('active-nav');
+                }
+            });
+
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (mobileMenu && !mobileMenu.classList.contains('hidden')) {
+                mobileMenu.classList.add('hidden');
+            }
+        }
+
+        let scrollSpyObserver = null;
+        function setupScrollSpy() {
+            if (scrollSpyObserver) {
+                scrollSpyObserver.disconnect();
+            }
+
+            const sections = document.querySelectorAll('section[id], footer[id]');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '-20% 0px -60% 0px',
+                threshold: 0
+            };
+
+            scrollSpyObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const activeId = entry.target.getAttribute('id');
+                        navLinks.forEach((link) => {
+                            const linkTarget = link.getAttribute('data-target');
+                            if (linkTarget === activeId) {
+                                link.classList.add('active-nav');
+                            } else {
+                                link.classList.remove('active-nav');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach((section) => scrollSpyObserver.observe(section));
+        }
+
+        function renderNavLinks() {
+            const desktopNav = document.getElementById('desktop-nav-container');
+            const mobileNav = document.getElementById('mobile-nav-container');
+
+            let desktopHtml = `
+                <a href="#about" data-target="about" onclick="scrollToSection('about', event)" class="nav-link hover:text-gold-accent transition">Tentang</a>
+                <a href="#portfolio" data-target="portfolio" onclick="scrollToSection('portfolio', event)" class="nav-link hover:text-gold-accent transition">Portfolio</a>
+                <a href="#sec-music" data-target="sec-music" onclick="scrollToSection('sec-music', event)" class="nav-link hover:text-gold-accent transition">Musik</a>
+            `;
+
+            appState.sections.forEach(sec => {
+                desktopHtml += `<a href="#${sec.id}" data-target="${sec.id}" onclick="scrollToSection('${sec.id}', event)" class="nav-link hover:text-gold-accent transition">${sec.navTitle}</a>`;
+            });
+
+            desktopHtml += `
+                <a href="#pet" data-target="pet" onclick="scrollToSection('pet', event)" class="nav-link hover:text-gold-accent transition">Zen Experience</a>
+                <a href="#guestbook" data-target="guestbook" onclick="scrollToSection('guestbook', event)" class="nav-link hover:text-gold-accent transition">Guestbook</a>
+            `;
+
+            desktopNav.innerHTML = desktopHtml + `
+                <button onclick="handleAdminNavClick()" class="px-3.5 py-1.5 rounded-full border border-luxury-border hover:border-gold-accent text-xs font-semibold text-warm-ivory transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-lock text-gold-accent text-[10px]"></i>
+                    <span id="desktop-admin-btn-text">${appState.isAdminLoggedIn ? 'CMS Dashboard' : 'Admin'}</span>
+                </button>
+            `;
+
+            let mobileHtml = `
+                <a href="#about" onclick="scrollToSection('about', event)" class="p-2 hover:bg-luxury-card rounded-lg text-warm-ivory flex items-center justify-between">
+                    <span>Tentang</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-gold-accent"></i>
+                </a>
+                <a href="#portfolio" onclick="scrollToSection('portfolio', event)" class="p-2 hover:bg-luxury-card rounded-lg text-warm-ivory flex items-center justify-between">
+                    <span>Portfolio</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-gold-accent"></i>
+                </a>
+                <a href="#sec-music" onclick="scrollToSection('sec-music', event)" class="p-2 hover:bg-luxury-card rounded-lg text-warm-ivory flex items-center justify-between">
+                    <span>Musik</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-gold-accent"></i>
+                </a>
+            `;
+
+            appState.sections.forEach(sec => {
+                mobileHtml += `
+                <a href="#${sec.id}" onclick="scrollToSection('${sec.id}', event)" class="p-2 hover:bg-luxury-card rounded-lg text-warm-ivory flex items-center justify-between">
+                    <span>${sec.navTitle}</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-gold-accent"></i>
+                </a>`;
+            });
+
+            mobileHtml += `
+                <a href="#pet" onclick="scrollToSection('pet', event)" class="p-2 hover:bg-luxury-card rounded-lg text-warm-ivory flex items-center justify-between">
+                    <span>Zen Experience</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-gold-accent"></i>
+                </a>
+                <a href="#guestbook" onclick="scrollToSection('guestbook', event)" class="p-2 hover:bg-luxury-card rounded-lg text-warm-ivory flex items-center justify-between">
+                    <span>Guestbook</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-gold-accent"></i>
+                </a>
+            `;
+
+            mobileNav.innerHTML = mobileHtml;
+
+            // Update Admin button texts
+            const adminText = appState.isAdminLoggedIn ? 'Admin Panel (Logged In)' : 'Admin Portal';
+            const mobileAdminBtnText = document.getElementById('mobile-admin-btn-text');
+            if (mobileAdminBtnText) mobileAdminBtnText.innerText = adminText;
+
+            // Admin Preview Bar Visibility
+            const adminBar = document.getElementById('admin-preview-bar');
+            if (adminBar) {
+                if (appState.isAdminLoggedIn) {
+                    adminBar.classList.remove('hidden');
+                } else {
+                    adminBar.classList.add('hidden');
+                }
+            }
+
+            setTimeout(setupScrollSpy, 100);
+        }
+
+        let audioCtx = null;
+        let isPlaying = false;
+        let currentTrackIndex = 0;
+        let soundVolume = 0.7;
+        let synthInterval = null;
+
+        const PLAYLIST = [
+            { title: 'Midnight Atelier Sunset 🌇', artist: 'Interactive Web Audio Engine', badge: 'AMBIENT SYNTH', notes: [261.63, 329.63, 392.00, 493.88, 523.25] },
+            { title: 'Organic Linen Echoes 🌿', artist: 'Acoustic Minimalist Soundscape', badge: 'DEEP CHORD', notes: [220.00, 277.18, 329.63, 440.00, 554.37] },
+            { title: 'Solitude Studio Resonance 🕯️', artist: 'Zen Meditation Atmosphere', badge: 'WARM REVERB', notes: [196.00, 246.94, 293.66, 392.00, 440.00] }
+        ];
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    audioCtx = new AudioContext();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playAmbientNote() {
+            if (!isPlaying || !audioCtx) return;
+            try {
+                const track = PLAYLIST[currentTrackIndex];
+                const freq = track.notes[Math.floor(Math.random() * track.notes.length)];
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+                const now = audioCtx.currentTime;
+                gain.gain.setValueAtTime(0, now);
+                gain.gain.linearRampToValueAtTime(0.08 * soundVolume, now + 0.8);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 3.2);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(now);
+                osc.stop(now + 3.3);
+
+                animateEqBars();
+            } catch (err) {
+                console.error("Audio synth error:", err);
+            }
+        }
+
+        function animateEqBars() {
+            for (let i = 1; i <= 4; i++) {
+                const bar = document.getElementById(`eq${i}`);
+                if (bar) {
+                    const h = isPlaying ? Math.floor(Math.random() * 14) + 4 : 4;
+                    bar.style.height = `${h}px`;
+                }
+            }
+        }
+
+        function togglePlayMusic() {
+            initAudioContext();
+            isPlaying = !isPlaying;
+
+            const vinyl = document.getElementById('vinyl-disc');
+            const playIcon = document.getElementById('play-icon');
+
+            if (isPlaying) {
+                if (vinyl) vinyl.classList.remove('vinyl-stop');
+                if (playIcon) playIcon.className = 'fa-solid fa-pause';
+                synthInterval = setInterval(playAmbientNote, 1200);
+                playAmbientNote();
+                showToast('Soundscape audio diaktifkan 🎵');
+            } else {
+                if (vinyl) vinyl.classList.add('vinyl-stop');
+                if (playIcon) playIcon.className = 'fa-solid fa-play ml-0.5';
+                clearInterval(synthInterval);
+                animateEqBars();
+                showToast('Audio dihentikan.');
+            }
+        }
+
+        function prevTrack() {
+            currentTrackIndex = (currentTrackIndex - 1 + PLAYLIST.length) % PLAYLIST.length;
+            updateTrackUI();
+        }
+
+        function nextTrack() {
+            currentTrackIndex = (currentTrackIndex + 1) % PLAYLIST.length;
+            updateTrackUI();
+        }
+
+        function updateTrackUI() {
+            const track = PLAYLIST[currentTrackIndex];
+            document.getElementById('song-title').innerText = track.title;
+            document.getElementById('song-artist').innerText = track.artist;
+            document.getElementById('track-type-badge').innerText = track.badge;
+
+            if (isPlaying) {
+                playAmbientNote();
+            }
+        }
+
+        function changeVolume(val) {
+            soundVolume = parseFloat(val);
+        }
+
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto px-4 py-3 rounded-xl border shadow-gold-glow text-xs font-medium flex items-center gap-2 transition-all duration-300 transform translate-y-2 opacity-0 ${
+                type === 'error' 
+                ? 'bg-red-900/90 border-red-500 text-white' 
+                : 'bg-luxury-card border-gold-accent text-warm-ivory'
+            }`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-triangle-exclamation text-red-400' : 'fa-circle-check text-gold-accent'}"></i><span>${msg}</span>`;
+            container.appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        let pendingConfirmAction = null;
+        function customConfirm(title, message, actionCallback) {
+            document.getElementById('confirm-title').innerText = title;
+            document.getElementById('confirm-message').innerText = message;
+            pendingConfirmAction = actionCallback;
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal(confirmed) {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            if (confirmed && typeof pendingConfirmAction === 'function') {
+                pendingConfirmAction();
+            }
+            pendingConfirmAction = null;
+        }
+
+        function renderDynamicSections() {
+            const container = document.getElementById('dynamic-sections-container');
+            if (!appState.sections || appState.sections.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = appState.sections.map(sec => `
+                <section id="${sec.id}" class="section-block scroll-mt-24 md:scroll-mt-28 bg-luxury-card border border-luxury-border rounded-2xl p-8 md:p-12 shadow-sleek space-y-6 relative overflow-hidden">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-gold-accent/30 bg-gold-accent/10 text-gold-accent text-xs font-semibold tracking-widest uppercase">
+                        ✦ ${sec.badge || 'ATELIER SECTION'}
+                    </div>
+                    <h2 class="text-3xl md:text-4xl font-serif text-warm-ivory">${sec.mainTitle}</h2>
+                    <p class="text-sm text-text-muted leading-relaxed max-w-2xl">${sec.content}</p>
+                </section>
+            `).join('');
+
+            setTimeout(setupScrollSpy, 100);
+        }
+
+        function renderFrontend() {
+            // Profile & Hero
+            document.getElementById('avatar-img').src = appState.profile.avatarUrl;
+            document.getElementById('hero-badge').innerText = appState.profile.badgeText;
+            document.getElementById('hero-headline').innerHTML = appState.profile.headline;
+            document.getElementById('hero-bio').innerHTML = appState.profile.bio;
+
+            // Desktop & Mobile Navigation Links
+            renderNavLinks();
+
+            // Portfolio Showcase
+            renderPortfolioGrid('all');
+
+            // Dynamic Sections Container
+            renderDynamicSections();
+
+            // Guestbook List
+            renderGuestbookList();
+
+            // Social Icons
+            renderSocialLinks();
+        }
+
+        function renderPortfolioGrid(filter = 'all') {
+            const grid = document.getElementById('gallery-grid');
+            const filtered = filter === 'all' 
+                ? appState.portfolioCards 
+                : appState.portfolioCards.filter(c => c.category === filter);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-xs text-text-muted">Tidak ada proyek dalam kategori ini.</div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(card => `
+                <div class="group bg-luxury-card border border-luxury-border rounded-2xl overflow-hidden shadow-sleek hover:shadow-gold-glow transition duration-500 flex flex-col justify-between">
+                    <div>
+                        <div class="w-full h-52 overflow-hidden relative">
+                            <img src="${card.image}" alt="${card.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-700" onerror="this.src='https://placehold.co/800x600/FAF6F3/A46860?text=${encodeURIComponent(card.title)}'">
+                            <span class="absolute top-3 right-3 bg-luxury-black/90 backdrop-blur-md border border-gold-accent/40 text-gold-accent text-[10px] font-semibold uppercase px-3 py-1 rounded-full">
+                                ${card.categoryLabel || card.category}
+                            </span>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            <h3 class="font-serif text-lg text-warm-ivory group-hover:text-gold-accent transition duration-300">${card.title}</h3>
+                            <p class="text-xs text-text-muted leading-relaxed">${card.desc}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterGallery(cat) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.className = 'filter-btn px-5 py-2 rounded-full border border-luxury-border text-xs font-medium text-text-muted hover:text-warm-ivory hover:border-gold-accent/50 transition';
+            });
+            if (event && event.target) {
+                event.target.className = 'filter-btn active px-5 py-2 rounded-full border border-gold-accent text-xs font-medium bg-gold-accent text-luxury-black transition';
+            }
+            renderPortfolioGrid(cat);
+        }
+
+        let mochiHarmony = 75;
+        function petMochi() {
+            mochiHarmony = Math.min(100, mochiHarmony + 10);
+            updateMochiUI("✨ Atmosfer terasa sangat selaras dan inspiratif!");
+        }
+
+        function feedMochi(item) {
+            mochiHarmony = Math.min(100, mochiHarmony + 15);
+            const msg = item === 'tea' ? "🍵 Menikmati kesegaran Green Tea pilihan." : "🕯️ Aroma harum Incense menenangkan pikiran.";
+            updateMochiUI(msg);
+        }
+
+        function updateMochiUI(statusText) {
+            document.getElementById('mochi-bar').style.width = `${mochiHarmony}%`;
+            document.getElementById('mochi-status').innerText = `"${statusText}"`;
+            
+            const avatar = document.getElementById('mochi-avatar');
+            avatar.classList.add('scale-125');
+            setTimeout(() => avatar.classList.remove('scale-125'), 300);
+        }
+
+        function addGuestbookMessage(e) {
+            e.preventDefault();
+            const name = document.getElementById('gb-name').value;
+            const message = document.getElementById('gb-message').value;
+
+            const newEntry = {
+                id: 'gb_' + Date.now(),
+                name,
+                message,
+                date: new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })
+            };
+
+            appState.guestbook.unshift(newEntry);
+            saveState();
+            renderGuestbookList();
+            renderCmsguestbookList();
+
+            document.getElementById('guestbook-form').reset();
+            showToast('Pesan berhasil ditambahkan ke Guestbook!');
+        }
+
+        function renderGuestbookList() {
+            const container = document.getElementById('guestbook-list');
+            if (appState.guestbook.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-text-muted py-8">Belum ada pesan. Jadilah yang pertama meninggalkan pesan!</div>`;
+                return;
+            }
+
+            container.innerHTML = appState.guestbook.map(gb => `
+                <div class="bg-luxury-card border border-luxury-border rounded-xl p-4 shadow-sm space-y-2">
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="font-semibold text-warm-ivory">${gb.name}</span>
+                        <span class="text-[10px] text-text-muted">${gb.date}</span>
+                    </div>
+                    <p class="text-xs text-text-muted leading-relaxed">${gb.message}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderSocialLinks() {
+            const container = document.getElementById('social-icons-container');
+            container.innerHTML = appState.socialLinks.map(s => `
+                <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-luxury-black border border-luxury-border hover:border-gold-accent hover:text-gold-accent flex items-center justify-center text-xs text-warm-ivory transition duration-300" title="${s.name}">
+                    <i class="fa-brands ${s.icon} text-sm"></i>
+                </a>
+            `).join('');
+        }
+
+        function handleAdminNavClick() {
+            if (appState.isAdminLoggedIn) {
+                switchToBackend();
+            } else {
+                openLoginModal();
+            }
+        }
+
+        function openLoginModal() {
+            document.getElementById('login-modal').classList.remove('hidden');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').classList.add('hidden');
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('login-username').value;
+            const pass = document.getElementById('login-password').value;
+
+            if (user === 'admin' && pass === 'admin123') {
+                appState.isAdminLoggedIn = true;
+                saveState();
+                closeLoginModal();
+                showToast('Login Admin Berhasil! Mengalihkan ke CMS...');
+                switchToBackend();
+                renderFrontend();
+            } else {
+                showToast('Username atau password salah!', 'error');
+            }
+        }
+
+        function handleAdminLogout() {
+            customConfirm('Logout', 'Apakah Anda yakin ingin keluar dari Admin CMS?', () => {
+                appState.isAdminLoggedIn = false;
+                saveState();
+                switchToFrontend();
+                renderFrontend();
+                showToast('Berhasil logout dari Admin CMS.');
+            });
+        }
+
+        function switchToBackend() {
+            document.getElementById('frontend-view').classList.add('hidden');
+            document.getElementById('backend-view').classList.remove('hidden');
+            initCmsFields();
+        }
+
+        function switchToFrontend() {
+            document.getElementById('backend-view').classList.add('hidden');
+            document.getElementById('frontend-view').classList.remove('hidden');
+            renderFrontend();
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        function switchCmstab(tabName) {
+            document.querySelectorAll('.cms-panel').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.cms-tab-btn').forEach(b => {
+                b.className = 'cms-tab-btn px-5 py-2.5 bg-luxury-card text-text-muted border border-luxury-border rounded-xl text-xs font-medium hover:text-warm-ivory flex items-center gap-2 transition';
+            });
+
+            document.getElementById(`cms-section-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tabName}`).className = 'cms-tab-btn active px-5 py-2.5 bg-gold-accent text-luxury-black font-semibold rounded-xl text-xs flex items-center gap-2 transition';
+        }
+
+        function initCmsFields() {
+            // Fill Profile Tab
+            document.getElementById('admin-avatar-preview').src = appState.profile.avatarUrl;
+            document.getElementById('avatar-input-url').value = appState.profile.avatarUrl;
+            document.getElementById('badge-input').value = appState.profile.badgeText;
+            document.getElementById('headline-input').value = appState.profile.headline;
+            document.getElementById('bio-input').value = appState.profile.bio;
+
+            // Render Sub-lists
+            renderCmsSectionsList();
+            renderCmscardsList();
+            renderCmssocialList();
+            renderCmsguestbookList();
+        }
+
+        function handleSaveProfileCMS(e) {
+            e.preventDefault();
+            const urlInput = document.getElementById('avatar-input-url').value;
+            appState.profile.avatarUrl = urlInput || appState.profile.avatarUrl;
+            appState.profile.badgeText = document.getElementById('badge-input').value;
+            appState.profile.headline = document.getElementById('headline-input').value;
+            appState.profile.bio = document.getElementById('bio-input').value;
+
+            saveState();
+            showToast('Setelan Profile berhasil diperbarui!');
+        }
+
+        function convertAvatarFile(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const dataUrl = evt.target.result;
+                    document.getElementById('admin-avatar-preview').src = dataUrl;
+                    document.getElementById('avatar-input-url').value = dataUrl;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleCreateSectionCMS(e) {
+            e.preventDefault();
+            const id = document.getElementById('sec-id').value.trim().toLowerCase().replace(/\s+/g, '-');
+            const navTitle = document.getElementById('sec-nav-title').value;
+            const mainTitle = document.getElementById('sec-main-title').value;
+            const badge = document.getElementById('sec-badge').value;
+            const content = document.getElementById('sec-content').value;
+
+            appState.sections.push({ id, navTitle, mainTitle, badge, content });
+            saveState();
+            renderCmsSectionsList();
+            e.target.reset();
+            showToast('Section baru berhasil dipublikasikan!');
+        }
+
+        function deleteSectionCMS(id) {
+            customConfirm('Hapus Section', 'Apakah Anda yakin ingin menghapus section ini?', () => {
+                appState.sections = appState.sections.filter(s => s.id !== id);
+                saveState();
+                renderCmsSectionsList();
+                showToast('Section berhasil dihapus.');
+            });
+        }
+
+        function renderCmsSectionsList() {
+            const container = document.getElementById('cms-sections-list');
+            if (appState.sections.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-text-muted py-6">Belum ada custom section.</div>`;
+                return;
+            }
+
+            container.innerHTML = appState.sections.map(sec => `
+                <div class="bg-luxury-black border border-luxury-border rounded-xl p-4 flex items-center justify-between gap-4">
+                    <div>
+                        <span class="text-[10px] font-semibold text-gold-accent uppercase tracking-wider">${sec.badge || 'SECTION'}</span>
+                        <h4 class="font-serif text-sm text-warm-ivory">${sec.mainTitle} (Nav: ${sec.navTitle})</h4>
+                        <p class="text-xs text-text-muted line-clamp-1 mt-1">${sec.content}</p>
+                    </div>
+                    <button onclick="deleteSectionCMS('${sec.id}')" class="px-3 py-1.5 bg-red-100 text-red-600 rounded-lg text-xs hover:bg-red-200 transition">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function handleSaveCardCMS(e) {
+            e.preventDefault();
+            const editId = document.getElementById('card-edit-id').value;
+            const title = document.getElementById('card-title').value;
+            const category = document.getElementById('card-category').value;
+            const categoryLabel = category === 'ui' ? 'UI/UX Design' : category === 'brand' ? 'Brand Identity' : 'Visual Art';
+            const image = document.getElementById('card-image').value;
+            const desc = document.getElementById('card-desc').value;
+
+            if (editId) {
+                const idx = appState.portfolioCards.findIndex(c => c.id === editId);
+                if (idx !== -1) {
+                    appState.portfolioCards[idx] = { id: editId, title, category, categoryLabel, image, desc };
+                }
+            } else {
+                const newCard = { id: 'p_' + Date.now(), title, category, categoryLabel, image, desc };
+                appState.portfolioCards.push(newCard);
+            }
+
+            saveState();
+            renderCmscardsList();
+            resetCardForm();
+            showToast('Karya Portfolio berhasil disimpan!');
+        }
+
+        function editCardCMS(id) {
+            const card = appState.portfolioCards.find(c => c.id === id);
+            if (card) {
+                document.getElementById('card-edit-id').value = card.id;
+                document.getElementById('card-title').value = card.title;
+                document.getElementById('card-category').value = card.category;
+                document.getElementById('card-image').value = card.image;
+                document.getElementById('card-desc').value = card.desc;
+                document.getElementById('card-form-heading').innerText = 'Edit Karya Portfolio ✏️';
+            }
+        }
+
+        function deleteCardCMS(id) {
+            customConfirm('Hapus Karya', 'Apakah Anda yakin ingin menghapus karya portfolio ini?', () => {
+                appState.portfolioCards = appState.portfolioCards.filter(c => c.id !== id);
+                saveState();
+                renderCmscardsList();
+                showToast('Karya berhasil dihapus.');
+            });
+        }
+
+        function resetCardForm() {
+            document.getElementById('card-edit-id').value = '';
+            document.getElementById('card-title').value = '';
+            document.getElementById('card-image').value = '';
+            document.getElementById('card-desc').value = '';
+            document.getElementById('card-form-heading').innerText = 'Tambah Karya Portfolio 🖼️';
+        }
+
+        function renderCmscardsList() {
+            const container = document.getElementById('cms-cards-list');
+            container.innerHTML = appState.portfolioCards.map(card => `
+                <div class="bg-luxury-black border border-luxury-border rounded-xl p-3 flex items-center gap-4">
+                    <img src="${card.image}" class="w-14 h-14 rounded-lg object-cover" onerror="this.src='https://placehold.co/100x100/FAF6F3/A46860?text=Image'">
+                    <div class="flex-grow">
+                        <h4 class="text-xs font-semibold text-warm-ivory">${card.title}</h4>
+                        <span class="text-[10px] text-gold-accent font-medium uppercase">${card.categoryLabel || card.category}</span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="editCardCMS('${card.id}')" class="px-2.5 py-1.5 bg-luxury-card border border-luxury-border rounded-lg text-xs text-warm-ivory hover:border-gold-accent transition">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="deleteCardCMS('${card.id}')" class="px-2.5 py-1.5 bg-red-100 text-red-600 rounded-lg text-xs hover:bg-red-200 transition">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function handleAddSocialCMS(e) {
+            e.preventDefault();
+            const name = document.getElementById('social-name').value;
+            const icon = document.getElementById('social-icon').value;
+            const url = document.getElementById('social-url').value;
+
+            appState.socialLinks.push({ name, icon, url });
+            saveState();
+            renderCmssocialList();
+            e.target.reset();
+            showToast('Link sosial media berhasil ditambahkan!');
+        }
+
+        function deleteSocialCMS(idx) {
+            appState.socialLinks.splice(idx, 1);
+            saveState();
+            renderCmssocialList();
+            showToast('Link sosial media dihapus.');
+        }
+
+        function renderCmssocialList() {
+            const container = document.getElementById('cms-social-list');
+            container.innerHTML = appState.socialLinks.map((s, idx) => `
+                <div class="flex items-center justify-between bg-luxury-black border border-luxury-border px-4 py-2.5 rounded-xl text-xs">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-brands ${s.icon} text-gold-accent"></i>
+                        <span class="font-semibold text-warm-ivory">${s.name}</span>
+                        <span class="text-text-muted text-[11px]">(${s.url})</span>
+                    </div>
+                    <button onclick="deleteSocialCMS(${idx})" class="text-red-500 hover:text-red-700">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function deleteGuestbookCMS(id) {
+            appState.guestbook = appState.guestbook.filter(g => g.id !== id);
+            saveState();
+            renderCmsguestbookList();
+            renderGuestbookList();
+            showToast('Pesan guestbook dihapus.');
+        }
+
+        function clearAllGuestbookCMS() {
+            customConfirm('Bersihkan Guestbook', 'Hapus seluruh pesan guestbook?', () => {
+                appState.guestbook = [];
+                saveState();
+                renderCmsguestbookList();
+                renderGuestbookList();
+                showToast('Seluruh pesan guestbook dibersihkan.');
+            });
+        }
+
+        function renderCmsguestbookList() {
+            const container = document.getElementById('cms-guestbook-list');
+            if (appState.guestbook.length === 0) {
+                container.innerHTML = `<div class="text-center text-xs text-text-muted py-6">Tidak ada pesan guestbook.</div>`;
+                return;
+            }
+
+            container.innerHTML = appState.guestbook.map(gb => `
+                <div class="bg-luxury-black border border-luxury-border rounded-xl p-4 flex items-start justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-semibold text-warm-ivory">${gb.name}</span>
+                            <span class="text-[10px] text-text-muted">${gb.date}</span>
+                        </div>
+                        <p class="text-xs text-text-muted">${gb.message}</p>
+                    </div>
+                    <button onclick="deleteGuestbookCMS('${gb.id}')" class="px-2.5 py-1.5 bg-red-100 text-red-600 rounded-lg text-xs hover:bg-red-200 transition">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        window.onload = function() {
+            renderFrontend();
+            setupScrollSpy();
+        };
+    </script>
+</body>
+</html>
